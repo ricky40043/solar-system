@@ -670,6 +670,7 @@ window.PlanetWalk = (function() {
     overlayEl=document.createElement('div');
     overlayEl.className='walk-pointer-overlay';
     overlayEl.innerHTML='<div class="walk-pointer-msg"><div class="walk-pointer-title">點擊畫面開始漫遊</div><div class="walk-pointer-sub">移動滑鼠環顧四周 · ESC 暫停</div></div>';
+    overlayEl.addEventListener('click', onClick);
     container.appendChild(overlayEl);
   };
 
@@ -800,7 +801,7 @@ window.PlanetWalk = (function() {
     if(animId)cancelAnimationFrame(animId);
     unbindEvents();
     if(document.pointerLockElement===canvasEl)document.exitPointerLock();
-    if(overlayEl&&overlayEl.parentNode){overlayEl.parentNode.removeChild(overlayEl);overlayEl=null;}
+    if(overlayEl){overlayEl.removeEventListener('click',onClick);if(overlayEl.parentNode)overlayEl.parentNode.removeChild(overlayEl);overlayEl=null;}
     if(renderer){renderer.dispose();if(canvasEl&&canvasEl.parentNode)canvasEl.parentNode.removeChild(canvasEl);}
     scene=camera=renderer=canvasEl=null;
     groundMesh=sky=planetSphere=starsLayer=windParticles=null;
