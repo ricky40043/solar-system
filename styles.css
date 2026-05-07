@@ -1,0 +1,812 @@
+:root {
+  --bg: #000005;
+  --panel: rgba(8, 12, 24, 0.78);
+  --panel-border: rgba(120, 150, 220, 0.2);
+  --text: #e8eef8;
+  --text-dim: #8a96b0;
+  --accent: #6ec1ff;
+  --accent-warm: #ffaa55;
+  --danger: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Helvetica Neue", "Segoe UI", "PingFang TC", "Noto Sans TC", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { width: 100%; height: 100%; }
+
+.canvas-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-container canvas {
+  display: block;
+  cursor: grab;
+}
+.canvas-container canvas:active { cursor: grabbing; }
+
+/* ===== 標籤層 ===== */
+.labels-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.planet-label {
+  position: absolute;
+  transform: translate(12px, -50%);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  background: rgba(0, 5, 15, 0.55);
+  border: 1px solid rgba(120, 150, 220, 0.25);
+  border-radius: 3px;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+.planet-label[data-type="sun"] {
+  color: #ffd97a;
+  border-color: rgba(255, 200, 80, 0.4);
+}
+
+/* ===== 頂部 ===== */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  z-index: 10;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,8,0.55), rgba(0,0,8,0));
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  pointer-events: auto;
+}
+.logo-icon {
+  font-size: 22px;
+  color: var(--accent-warm);
+  text-shadow: 0 0 12px rgba(255, 170, 85, 0.6);
+}
+.logo-text {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.logo-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.date-display {
+  text-align: right;
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 8px 14px;
+  backdrop-filter: blur(10px);
+}
+.date-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.date-value {
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+/* ===== 左側行星選單 ===== */
+.planet-menu {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 12px 8px;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  min-width: 110px;
+}
+.menu-title {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.planet-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+  font-family: inherit;
+  text-align: left;
+}
+.planet-btn:hover {
+  background: rgba(110, 193, 255, 0.12);
+}
+.planet-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* ===== 資訊卡 ===== */
+.info-card {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  width: 320px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 20px;
+  backdrop-filter: blur(14px);
+  z-index: 10;
+  animation: slideIn 0.25s ease-out;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-family: inherit;
+}
+.close-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+.info-header { margin-bottom: 14px; padding-right: 30px; }
+.info-name-zh {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.info-name-en {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.info-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #c8d1e0;
+  margin-bottom: 14px;
+  text-wrap: pretty;
+}
+.info-grid { display: flex; flex-direction: column; gap: 1px; }
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(120, 150, 220, 0.08);
+  font-size: 12px;
+}
+.info-row span { color: var(--text-dim); }
+.info-row b { font-weight: 500; text-align: right; max-width: 65%; }
+
+/* ===== 底部控制 ===== */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+  background: linear-gradient(to top, rgba(0,0,8,0.65), rgba(0,0,8,0));
+}
+
+.control-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ctrl-btn {
+  width: 38px;
+  height: 38px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.15s;
+  backdrop-filter: blur(10px);
+}
+.ctrl-btn:hover {
+  background: rgba(110, 193, 255, 0.15);
+  border-color: rgba(110, 193, 255, 0.4);
+}
+.ctrl-btn.primary {
+  background: rgba(110, 193, 255, 0.15);
+  border-color: rgba(110, 193, 255, 0.4);
+  color: var(--accent);
+}
+.ctrl-btn.primary:hover {
+  background: rgba(110, 193, 255, 0.25);
+}
+
+.toggle-btn {
+  height: 30px;
+  padding: 0 12px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+  backdrop-filter: blur(10px);
+}
+.toggle-btn:hover { color: var(--text); }
+.toggle-btn.active {
+  color: var(--accent);
+  border-color: rgba(110, 193, 255, 0.5);
+  background: rgba(110, 193, 255, 0.1);
+}
+
+.scale-toggle {
+  display: flex;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.scale-toggle button {
+  height: 30px;
+  padding: 0 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.scale-toggle button.active {
+  background: rgba(110, 193, 255, 0.18);
+  color: var(--accent);
+}
+
+/* ===== 速度滑桿 ===== */
+.speed-wrap {
+  flex: 1;
+  max-width: 460px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  backdrop-filter: blur(10px);
+}
+.speed-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.slider-title {
+  color: var(--text-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.slider-value {
+  color: var(--accent);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.speed-slider input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: rgba(120, 150, 220, 0.15);
+  border-radius: 2px;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+.speed-slider input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #001020;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(110, 193, 255, 0.6);
+}
+.speed-slider input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #001020;
+  cursor: pointer;
+}
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* ===== 進入星球按鈕 ===== */
+.enter-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(110, 193, 255, 0.18), rgba(110, 193, 255, 0.06));
+  border: 1px solid rgba(110, 193, 255, 0.4);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.enter-btn:hover {
+  background: linear-gradient(135deg, rgba(110, 193, 255, 0.28), rgba(110, 193, 255, 0.12));
+  border-color: rgba(110, 193, 255, 0.7);
+  box-shadow: 0 0 14px rgba(110, 193, 255, 0.25);
+}
+
+/* ===== 表面漫遊 HUD ===== */
+.walk-hud-top {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  z-index: 10;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+  pointer-events: none;
+}
+.walk-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  pointer-events: auto;
+}
+.walk-tag {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(110, 193, 255, 0.15);
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(110, 193, 255, 0.3);
+}
+.walk-planet {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+.walk-exit {
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.15s;
+}
+.walk-exit:hover {
+  background: rgba(110, 193, 255, 0.15);
+  border-color: rgba(110, 193, 255, 0.4);
+}
+.walk-hud-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.walk-keys {
+  position: absolute;
+  bottom: 16px;
+  left: 24px;
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  align-items: center;
+}
+.walk-keys kbd {
+  display: inline-block;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-family: monospace;
+  font-size: 11px;
+  margin: 0 1px;
+}
+.walk-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255,255,255,0.5);
+  font-size: 22px;
+  font-weight: 300;
+  user-select: none;
+}
+
+/* ===== GPS 面板 ===== */
+.gps-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 240px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 14px;
+  backdrop-filter: blur(12px);
+  z-index: 11;
+  font-size: 12px;
+}
+.gps-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.gps-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: pulse 1.6s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.gps-region {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #fff;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.gps-rows { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.gps-row {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+.gps-row span { color: var(--text-dim); }
+.gps-row b { font-weight: 500; color: #e8eef8; }
+
+.mini-map {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background: rgba(0, 5, 15, 0.6);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(120,150,220,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,150,220,0.15) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+.map-cross-h, .map-cross-v {
+  position: absolute;
+  background: rgba(120,150,220,0.3);
+}
+.map-cross-h { left: 0; right: 0; top: 50%; height: 1px; }
+.map-cross-v { top: 0; bottom: 0; left: 50%; width: 1px; }
+.map-poi-wrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.map-poi {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 200, 100, 0.9);
+  box-shadow: 0 0 5px rgba(255, 200, 100, 0.7);
+  margin: 0 auto;
+}
+.map-poi-label {
+  font-size: 9px;
+  color: rgba(255, 220, 160, 0.95);
+  text-align: center;
+  margin-top: 2px;
+  white-space: nowrap;
+  text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.9);
+  letter-spacing: 0.05em;
+}
+.map-player {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(110, 193, 255, 0.8));
+}
+.map-N {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* ===== 飛行控制面板 ===== */
+.fly-panel {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  backdrop-filter: blur(12px);
+  z-index: 11;
+  min-width: 280px;
+}
+.fly-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: rgba(255, 170, 85, 0.12);
+  border: 1px solid rgba(255, 170, 85, 0.4);
+  border-radius: 6px;
+  color: var(--accent-warm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fly-toggle:hover {
+  background: rgba(255, 170, 85, 0.22);
+}
+.fly-toggle.active {
+  background: rgba(255, 170, 85, 0.25);
+  box-shadow: 0 0 14px rgba(255, 170, 85, 0.3);
+}
+.fly-toggle kbd {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: monospace;
+  margin-left: 4px;
+}
+.fly-speed {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fly-speed-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.fly-speed-label span {
+  color: var(--text-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.fly-speed-label b {
+  color: var(--accent-warm);
+  font-variant-numeric: tabular-nums;
+}
+.fly-speed input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 170, 85, 0.15);
+  border-radius: 2px;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+.fly-speed input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  border: 2px solid #001020;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 170, 85, 0.6);
+}
+.fly-speed input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  border: 2px solid #001020;
+  cursor: pointer;
+}
+.fly-speed-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+/* ===== Help ===== */
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 5, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+.help-card {
+  position: relative;
+  background: rgba(12, 18, 32, 0.95);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 540px;
+  width: 90%;
+}
+.help-card h2 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 20px;
+  margin-bottom: 20px;
+}
+.help-grid > div { display: flex; flex-direction: column; gap: 2px; }
+.help-grid b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.help-grid span {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.help-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--panel-border);
+  text-wrap: pretty;
+}
+
+/* ===== 響應式 ===== */
+@media (max-width: 720px) {
+  .planet-menu { display: none; }
+  .info-card { width: calc(100% - 32px); right: 16px; left: 16px; }
+  .bottom-bar { flex-wrap: wrap; }
+  .speed-wrap { order: -1; flex-basis: 100%; max-width: none; }
+}
+
+/* ===== 滾動條 ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(120, 150, 220, 0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(120, 150, 220, 0.4); }
