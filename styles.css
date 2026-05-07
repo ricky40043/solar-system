@@ -805,6 +805,40 @@ html, body {
   .speed-wrap { order: -1; flex-basis: 100%; max-width: none; }
 }
 
+/* ===== Pointer Lock Overlay ===== */
+.walk-pointer-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  background: rgba(0,0,0,0.42);
+  cursor: pointer;
+  user-select: none;
+}
+.walk-pointer-msg {
+  text-align: center;
+  padding: 28px 44px;
+  background: rgba(8,12,24,0.88);
+  border: 1px solid rgba(110,193,255,0.35);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+.walk-pointer-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+}
+.walk-pointer-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
 /* ===== 滾動條 ===== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

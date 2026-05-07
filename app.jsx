@@ -173,6 +173,26 @@ function Labels({ visible }) {
 
 // ===== 走動模式 UI =====
 const REGION_LABELS = {
+  mercury: [
+    { x: 0, z: 0, name: '卡洛里斯盆地' },
+    { x: 120, z: 60, name: '奧丁平原' },
+    { x: -120, z: 80, name: '普希金隕石坑' },
+    { x: 80, z: -150, name: '北極盆地' },
+    { x: -100, z: -100, name: '貝多芬隕石坑' },
+    { x: 150, z: -50, name: '赫爾墨斯平原' },
+    { x: -50, z: 180, name: '發現峭壁' },
+    { x: 60, z: 200, name: '海明威隕石坑' },
+  ],
+  venus: [
+    { x: 0, z: 0, name: '愛芙蘿黛緹平原' },
+    { x: 150, z: 80, name: '麥斯維爾山脈' },
+    { x: -130, z: 90, name: '伊師塔高地' },
+    { x: 80, z: -160, name: '迪安娜峽谷' },
+    { x: -110, z: -90, name: '海倫平原' },
+    { x: 180, z: -50, name: '火山帶' },
+    { x: -50, z: 180, name: '拉克西米高原' },
+    { x: 70, z: 210, name: '玄武岩原野' },
+  ],
   earth: [
     { x: 0, z: 0, name: '中央谷地' },
     { x: 120, z: 60, name: '東部丘陵' },
@@ -192,6 +212,26 @@ const REGION_LABELS = {
     { x: 150, z: -50, name: '水手號峽谷' },
     { x: -50, z: 180, name: '南赤道沙海' },
     { x: 60, z: 200, name: '希臘平原' },
+  ],
+  uranus: [
+    { x: 0, z: 0, name: '冰晶平原' },
+    { x: 150, z: 80, name: '氮冰高地' },
+    { x: -130, z: 90, name: '甲烷霜區' },
+    { x: 80, z: -160, name: '冰山群' },
+    { x: -110, z: -90, name: '藍綠低谷' },
+    { x: 180, z: -50, name: '環帶投影區' },
+    { x: -50, z: 180, name: '南冰原' },
+    { x: 70, z: 210, name: '天王星深淵' },
+  ],
+  neptune: [
+    { x: 0, z: 0, name: '大黑斑外圍' },
+    { x: 150, z: 80, name: '氮冰原野' },
+    { x: -130, z: 90, name: '風暴走廊' },
+    { x: 80, z: -160, name: '氫冰山脈' },
+    { x: -110, z: -90, name: '崔頓觀測點' },
+    { x: 180, z: -50, name: '超音速氣流區' },
+    { x: -50, z: 180, name: '深藍平原' },
+    { x: 70, z: 210, name: '冰火山域' },
   ],
 };
 
@@ -355,7 +395,7 @@ function WalkMode({ planetKey, onExit }) {
             <span><kbd>Space</kbd> 跳躍</span>
           )}
           <span><kbd>F</kbd> 切換飛行</span>
-          <span>滑鼠拖曳：環顧四周</span>
+          <span>點擊畫面鎖定滑鼠·ESC 暫停</span>
         </div>
         <div className="walk-crosshair">+</div>
       </div>
