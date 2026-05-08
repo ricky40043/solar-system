@@ -19,6 +19,7 @@ window.PlanetWalk = (function() {
   let lastPointer = { x: 0, y: 0 };
   let windParticles = null;
   let cachedCraters = [];
+  let sphereMode = false; // 地球使用球面模式
 
   // ===== Planet configs — fog distances sized to hide terrain edge =====
   const PLANET_CONFIG = {
@@ -163,6 +164,15 @@ window.PlanetWalk = (function() {
 
   // ===== Init =====
   const init = (containerEl, key) => {
+    // 地球使用球面地形模式
+    if (key === 'earth' && window.PlanetWalkSphere) {
+      sphereMode = true;
+      if (onModeChangeCb) PlanetWalkSphere.onModeChange(onModeChangeCb);
+      PlanetWalkSphere.init(containerEl);
+      return;
+    }
+    sphereMode = false;
+
     container = containerEl;
     planetKey = key;
     cfg = PLANET_CONFIG[key];
@@ -751,6 +761,11 @@ window.PlanetWalk = (function() {
 
   // ===== Dispose =====
   const dispose = () => {
+    if (sphereMode && window.PlanetWalkSphere) {
+      PlanetWalkSphere.dispose();
+      sphereMode = false;
+      return;
+    }
     if(animId) cancelAnimationFrame(animId);
     unbindEvents();
     if(renderer){ renderer.dispose(); if(canvasEl&&canvasEl.parentNode)canvasEl.parentNode.removeChild(canvasEl); }
@@ -763,9 +778,13 @@ window.PlanetWalk = (function() {
     init, dispose,
     isAvailable: (key) => !!PLANET_CONFIG[key],
     getName:     (key) => PLANET_CONFIG[key]?.name || key,
-    setFlyMode, setFlySpeed,
-    isFlying:    () => flyMode,
-    getFlySpeed: () => flySpeed,
-    onModeChange:(cb) => { onModeChangeCb=cb; },
+    setFlyMode:  (on) => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.setFlyMode(on) : setFlyMode(on),
+    setFlySpeed: (v)  => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.setFlySpeed(v) : setFlySpeed(v),
+    isFlying:    ()   => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.isFlying() : flyMode,
+    getFlySpeed: ()   => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.getFlySpeed() : flySpeed,
+    onModeChange:(cb) => {
+      onModeChangeCb = cb;
+      if (window.PlanetWalkSphere) PlanetWalkSphere.onModeChange(cb);
+    },
   };
 })();
