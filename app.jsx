@@ -395,6 +395,7 @@ function WalkMode({ planetKey, onExit }) {
             <span><kbd>Space</kbd> 跳躍</span>
           )}
           <span><kbd>F</kbd> 切換飛行</span>
+          {planetKey === 'earth' && <span><kbd>R</kbd> 自動公轉 開/關</span>}
           <span>拖曳畫面：環顧四周</span>
         </div>
         <div className="walk-crosshair">+</div>
