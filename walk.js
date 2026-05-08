@@ -15,8 +15,8 @@ window.PlanetWalk = (function() {
   let flyMode = false;
   let flySpeed = 30;
   let onModeChangeCb = null;
-  let pointerLocked = false;
-  let overlayEl = null;
+  let isPointerDown = false;
+  let lastPointer = { x: 0, y: 0 };
   let windParticles = null;
   let cachedCraters = [];
 
@@ -164,7 +164,6 @@ window.PlanetWalk = (function() {
 
     buildPlanetSphere();
     buildStarsLayer();
-    buildOverlay();
     bindEvents();
     animate();
   };
@@ -665,15 +664,6 @@ window.PlanetWalk = (function() {
     scene.add(starsLayer);
   };
 
-  // ===== Pointer Lock Overlay =====
-  const buildOverlay = () => {
-    overlayEl=document.createElement('div');
-    overlayEl.className='walk-pointer-overlay';
-    overlayEl.innerHTML='<div class="walk-pointer-msg"><div class="walk-pointer-title">點擊畫面開始漫遊</div><div class="walk-pointer-sub">移動滑鼠環顧四周 · ESC 暫停</div></div>';
-    overlayEl.addEventListener('click', onClick);
-    container.appendChild(overlayEl);
-  };
-
   // ===== Controls =====
   const setFlyMode = (on) => {
     flyMode=on;
@@ -689,17 +679,15 @@ window.PlanetWalk = (function() {
   };
   const onKeyUp = (e) => { keys[e.code]=false; };
 
-  const onPointerLockChange = () => {
-    pointerLocked=(document.pointerLockElement===canvasEl);
-    if(overlayEl) overlayEl.style.display=pointerLocked?'none':'flex';
-  };
+  const onPointerDown = (e) => { isPointerDown=true; lastPointer.x=e.clientX; lastPointer.y=e.clientY; if(canvasEl)canvasEl.style.cursor='grabbing'; };
   const onPointerMove = (e) => {
-    if(!pointerLocked)return;
-    yaw-=e.movementX*0.002;
-    pitch-=e.movementY*0.002;
+    if(!isPointerDown)return;
+    yaw-=(e.clientX-lastPointer.x)*0.003;
+    pitch-=(e.clientY-lastPointer.y)*0.003;
     pitch=Math.max(-Math.PI/2+0.1,Math.min(Math.PI/2-0.1,pitch));
+    lastPointer.x=e.clientX; lastPointer.y=e.clientY;
   };
-  const onClick = () => { if(!pointerLocked&&canvasEl) canvasEl.requestPointerLock(); };
+  const onPointerUp = () => { isPointerDown=false; if(canvasEl)canvasEl.style.cursor='grab'; };
   const onResize = () => {
     if(!camera||!renderer)return;
     camera.aspect=window.innerWidth/window.innerHeight;
@@ -710,17 +698,18 @@ window.PlanetWalk = (function() {
   const bindEvents = () => {
     window.addEventListener('keydown',onKeyDown);
     window.addEventListener('keyup',onKeyUp);
-    canvasEl.addEventListener('click',onClick);
-    document.addEventListener('pointerlockchange',onPointerLockChange);
+    canvasEl.addEventListener('pointerdown',onPointerDown);
     window.addEventListener('pointermove',onPointerMove);
+    window.addEventListener('pointerup',onPointerUp);
     window.addEventListener('resize',onResize);
+    canvasEl.style.cursor='grab';
   };
   const unbindEvents = () => {
     window.removeEventListener('keydown',onKeyDown);
     window.removeEventListener('keyup',onKeyUp);
-    if(canvasEl)canvasEl.removeEventListener('click',onClick);
-    document.removeEventListener('pointerlockchange',onPointerLockChange);
+    if(canvasEl){canvasEl.removeEventListener('pointerdown',onPointerDown);canvasEl.style.cursor='';}
     window.removeEventListener('pointermove',onPointerMove);
+    window.removeEventListener('pointerup',onPointerUp);
     window.removeEventListener('resize',onResize);
   };
 
@@ -801,11 +790,10 @@ window.PlanetWalk = (function() {
     if(animId)cancelAnimationFrame(animId);
     unbindEvents();
     if(document.pointerLockElement===canvasEl)document.exitPointerLock();
-    if(overlayEl){overlayEl.removeEventListener('click',onClick);if(overlayEl.parentNode)overlayEl.parentNode.removeChild(overlayEl);overlayEl=null;}
     if(renderer){renderer.dispose();if(canvasEl&&canvasEl.parentNode)canvasEl.parentNode.removeChild(canvasEl);}
     scene=camera=renderer=canvasEl=null;
     groundMesh=sky=planetSphere=starsLayer=windParticles=null;
-    keys={};velocity=new THREE.Vector3();pointerLocked=false;cachedCraters=[];
+    keys={};velocity=new THREE.Vector3();isPointerDown=false;cachedCraters=[];
   };
 
   return {
