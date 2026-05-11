@@ -494,9 +494,14 @@ function WalkMode({ planetKey, onExit }) {
             <div className="walk-destinations">
               {destinationItems.map((item) => (
                 <button
+                  type="button"
                   key={item.key}
                   className={`destination-btn ${walkTarget === item.key ? 'active' : ''}`}
-                  onClick={() => setWalkTarget(item.key)}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setWalkTarget(item.key);
+                  }}
                 >
                   {item.name}
                 </button>
