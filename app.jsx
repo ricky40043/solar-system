@@ -485,9 +485,24 @@ function WalkMode({ planetKey, onExit }) {
     <>
       <div ref={containerRef} className="canvas-container"></div>
       <div className="walk-hud-top">
-        <div className="walk-title">
-          <span className="walk-tag">{flyMode ? '太空船模式' : '表面漫遊'}</span>
-          <span className="walk-planet">{planetName}</span>
+        <div className="walk-left">
+          <div className="walk-title">
+            <span className="walk-tag">{flyMode ? '太空船模式' : '表面漫遊'}</span>
+            <span className="walk-planet">{planetName}</span>
+          </div>
+          {destinationItems.length > 1 && (
+            <div className="walk-destinations">
+              {destinationItems.map((item) => (
+                <button
+                  key={item.key}
+                  className={`destination-btn ${walkTarget === item.key ? 'active' : ''}`}
+                  onClick={() => setWalkTarget(item.key)}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <button className="walk-exit" onClick={onExit}>← 返回太空</button>
       </div>
@@ -521,20 +536,6 @@ function WalkMode({ planetKey, onExit }) {
           </div>
         )}
       </div>
-
-      {destinationItems.length > 1 && (
-        <div className="destination-panel">
-          {destinationItems.map((item) => (
-            <button
-              key={item.key}
-              className={`destination-btn ${walkTarget === item.key ? 'active' : ''}`}
-              onClick={() => setWalkTarget(item.key)}
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-      )}
 
       <div className="walk-hud-bottom">
         <div className="walk-keys">
