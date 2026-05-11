@@ -50,13 +50,29 @@ function SpeedSlider({ value, onChange }) {
 }
 
 // ===== 行星資訊卡 =====
+const MOON_WALK_KEYS = {
+  Moon: 'moon',
+  Phobos: 'phobos',
+  Io: 'io',
+  Europa: 'europa',
+  Ganymede: 'ganymede',
+  Titan: 'titan',
+  Enceladus: 'enceladus',
+  Triton: 'triton',
+};
+
 function InfoCard({ data, onClose, onEnter }) {
   if (!data) return null;
   const isMoon = data.type === 'moon';
   const isSun = data.type === 'sun';
   const d = data.data;
   const info = d.info || {};
-  const canWalk = !isMoon && !isSun && PlanetWalk && PlanetWalk.isAvailable && PlanetWalk.isAvailable(d.key);
+  const moonWalkKey = isMoon ? MOON_WALK_KEYS[d.nameEn] : null;
+  const directWalkKey = isMoon ? moonWalkKey : d.key;
+  const canWalk = !isSun && directWalkKey && PlanetWalk && PlanetWalk.isAvailable && PlanetWalk.isAvailable(directWalkKey);
+  const destinationItems = isMoon && moonWalkKey
+    ? [{ key: moonWalkKey, name: d.name }]
+    : (WALK_DESTINATIONS[d.key] || (canWalk ? [{ key: d.key, name: d.name }] : []));
 
   return (
     <div className="info-card">
@@ -65,11 +81,23 @@ function InfoCard({ data, onClose, onEnter }) {
         <div className="info-name-zh">{d.name}</div>
         <div className="info-name-en">{d.nameEn}</div>
       </div>
-      {canWalk && (
-        <button className="enter-btn" onClick={() => onEnter && onEnter(d.key)}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 5l7 7-7 7"/><path d="M4 12h16"/></svg>
-          進入 {d.name} 表面漫遊
-        </button>
+      {destinationItems.length > 0 && (
+        <div className="enter-destinations">
+          <div className="enter-destination-title">選擇漫遊目的地</div>
+          <div className="enter-destination-grid">
+            {destinationItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className="enter-destination-btn"
+                onClick={() => onEnter && onEnter(item.key)}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 5l7 7-7 7"/><path d="M4 12h16"/></svg>
+                {item.name}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {isMoon ? (
@@ -480,7 +508,6 @@ function WalkMode({ planetKey, onExit }) {
   };
 
   const planetName = PlanetWalk.getName(walkTarget);
-  const destinationItems = WALK_DESTINATIONS[planetKey] || [{ key: planetKey, name: planetName }];
   return (
     <>
       <div ref={containerRef} className="canvas-container"></div>
@@ -490,24 +517,6 @@ function WalkMode({ planetKey, onExit }) {
             <span className="walk-tag">{flyMode ? '太空船模式' : '表面漫遊'}</span>
             <span className="walk-planet">{planetName}</span>
           </div>
-          {destinationItems.length > 1 && (
-            <div className="walk-destinations">
-              {destinationItems.map((item) => (
-                <button
-                  type="button"
-                  key={item.key}
-                  className={`destination-btn ${walkTarget === item.key ? 'active' : ''}`}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setWalkTarget(item.key);
-                  }}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
         <button className="walk-exit" onClick={onExit}>← 返回太空</button>
       </div>
