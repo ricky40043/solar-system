@@ -164,11 +164,11 @@ window.PlanetWalk = (function() {
 
   // ===== Init =====
   const init = (containerEl, key) => {
-    // 地球使用球面地形模式
-    if (key === 'earth' && window.PlanetWalkSphere) {
+    // 所有行星使用球面地形模式，避免平面地圖邊界與極點奇異點
+    if (window.PlanetWalkSphere) {
       sphereMode = true;
       if (onModeChangeCb) PlanetWalkSphere.onModeChange(onModeChangeCb);
-      PlanetWalkSphere.init(containerEl);
+      PlanetWalkSphere.init(containerEl, key);
       return;
     }
     sphereMode = false;
