@@ -324,6 +324,23 @@ const REGION_LABELS = {
     { x: -50, z: 180, name: '深藍平原' },
     { x: 70, z: 210, name: '冰火山域' },
   ],
+  moon: [
+    { x: 0, z: 0, name: '寧靜海' },
+    { x: 120, z: 80, name: '雨海' },
+    { x: -90, z: -120, name: '第谷坑' },
+  ],
+  phobos: [{ x: 0, z: 0, name: '斯蒂克尼隕石坑' }],
+  io: [{ x: 0, z: 0, name: '洛基火山區' }, { x: 130, z: -80, name: '熔岩平原' }],
+  europa: [{ x: 0, z: 0, name: '混沌地形' }, { x: -120, z: 90, name: '冰裂紋帶' }],
+  ganymede: [{ x: 0, z: 0, name: '暗色古地殼' }, { x: 120, z: 40, name: '溝槽地形' }],
+  titan: [{ x: 0, z: 0, name: '橘色霾層' }, { x: 90, z: -80, name: '甲烷湖區' }],
+  enceladus: [{ x: 0, z: 0, name: '虎紋裂縫' }, { x: 110, z: -120, name: '南極噴泉區' }],
+  triton: [{ x: 0, z: 0, name: '氮冰平原' }, { x: -100, z: 70, name: '低溫噴泉區' }],
+  'saturn-rings': [
+    { x: 1050, z: 0, name: 'B 環冰粒帶' },
+    { x: 1290, z: 0, name: '卡西尼縫' },
+    { x: 1500, z: 0, name: 'A 環' },
+  ],
 };
 
 function geoDelta(lonA, lonB) {
@@ -429,17 +446,30 @@ function WalkHUD({ planetKey }) {
   );
 }
 
+const WALK_DESTINATIONS = {
+  earth: [{ key: 'earth', name: '地球' }, { key: 'moon', name: '月球' }],
+  mars: [{ key: 'mars', name: '火星' }, { key: 'phobos', name: '火衛一' }],
+  jupiter: [{ key: 'jupiter', name: '木星' }, { key: 'io', name: '木衛一' }, { key: 'europa', name: '木衛二' }, { key: 'ganymede', name: '木衛三' }],
+  saturn: [{ key: 'saturn', name: '土星' }, { key: 'saturn-rings', name: '光環' }, { key: 'titan', name: '泰坦' }, { key: 'enceladus', name: '恩克拉多斯' }],
+  neptune: [{ key: 'neptune', name: '海王星' }, { key: 'triton', name: '海衛一' }],
+};
+
 function WalkMode({ planetKey, onExit }) {
   const containerRef = useRef(null);
+  const [walkTarget, setWalkTarget] = useState(planetKey);
   const [flyMode, setFlyMode] = useState(false);
   const [flySpeed, setFlySpeed] = useState(30);
 
   useEffect(() => {
+    setWalkTarget(planetKey);
+  }, [planetKey]);
+
+  useEffect(() => {
     if (!containerRef.current) return;
-    PlanetWalk.init(containerRef.current, planetKey);
+    PlanetWalk.init(containerRef.current, walkTarget);
     PlanetWalk.onModeChange((on) => setFlyMode(on));
     return () => PlanetWalk.dispose();
-  }, [planetKey]);
+  }, [walkTarget]);
 
   useEffect(() => { PlanetWalk.setFlySpeed && PlanetWalk.setFlySpeed(flySpeed); }, [flySpeed]);
 
@@ -449,7 +479,8 @@ function WalkMode({ planetKey, onExit }) {
     setFlyMode(v);
   };
 
-  const planetName = PlanetWalk.getName(planetKey);
+  const planetName = PlanetWalk.getName(walkTarget);
+  const destinationItems = WALK_DESTINATIONS[planetKey] || [{ key: planetKey, name: planetName }];
   return (
     <>
       <div ref={containerRef} className="canvas-container"></div>
@@ -460,7 +491,7 @@ function WalkMode({ planetKey, onExit }) {
         </div>
         <button className="walk-exit" onClick={onExit}>← 返回太空</button>
       </div>
-      <WalkHUD planetKey={planetKey} />
+      <WalkHUD planetKey={walkTarget} />
 
       <div className="fly-panel">
         <button className={`fly-toggle ${flyMode ? 'active' : ''}`} onClick={toggleFly}>
@@ -490,6 +521,20 @@ function WalkMode({ planetKey, onExit }) {
           </div>
         )}
       </div>
+
+      {destinationItems.length > 1 && (
+        <div className="destination-panel">
+          {destinationItems.map((item) => (
+            <button
+              key={item.key}
+              className={`destination-btn ${walkTarget === item.key ? 'active' : ''}`}
+              onClick={() => setWalkTarget(item.key)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="walk-hud-bottom">
         <div className="walk-keys">

@@ -776,8 +776,8 @@ window.PlanetWalk = (function() {
 
   return {
     init, dispose,
-    isAvailable: (key) => !!PLANET_CONFIG[key],
-    getName:     (key) => PLANET_CONFIG[key]?.name || key,
+    isAvailable: (key) => window.PlanetWalkSphere?.isAvailable?.(key) || !!PLANET_CONFIG[key],
+    getName:     (key) => window.PlanetWalkSphere?.getName?.(key) || PLANET_CONFIG[key]?.name || key,
     setFlyMode:  (on) => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.setFlyMode(on) : setFlyMode(on),
     setFlySpeed: (v)  => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.setFlySpeed(v) : setFlySpeed(v),
     isFlying:    ()   => sphereMode && window.PlanetWalkSphere ? PlanetWalkSphere.isFlying() : flyMode,

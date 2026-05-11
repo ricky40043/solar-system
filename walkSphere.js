@@ -15,15 +15,29 @@ window.PlanetWalkSphere = (function () {
   };
 
   const PLANETS = {
-    mercury: { name: '水星', color: 0x8a7a68, atmo: 0x111111, ambient: 0xffffff, ambientI: 0.18, sun: 0xffffff, sunI: 4.0, walkSpeed: 8, terrain: 0.55, radius: DEFAULT_R, segW: 256, segH: 128 },
-    venus:   { name: '金星', color: 0xc07028, atmo: 0xd88430, ambient: 0xffb070, ambientI: 0.85, sun: 0xffcc80, sunI: 0.45, walkSpeed: 8, terrain: 0.75, radius: DEFAULT_R, segW: 256, segH: 128 },
+    mercury: { name: '水星', color: 0x8a7a68, atmo: 0x111111, ambient: 0xffffff, ambientI: 0.18, sun: 0xffffff, sunI: 4.0, walkSpeed: 12, terrain: 0.80, radius: 700, segW: 320, segH: 160 },
+    venus:   { name: '金星', color: 0xc07028, atmo: 0xd88430, ambient: 0xffb070, ambientI: 0.90, sun: 0xffcc80, sunI: 0.45, walkSpeed: 12, terrain: 0.75, radius: 850, segW: 320, segH: 160 },
     earth:   { name: '地球', color: 0x3366bb, atmo: 0x3366bb, ambient: 0xffffff, ambientI: 0.46, sun: 0xfff5e0, sunI: 1.55, walkSpeed: 18, terrain: 1.0, radius: 900, segW: 384, segH: 192 },
-    mars:    { name: '火星', color: 0xb65a35, atmo: 0xd09070, ambient: 0xffd0a8, ambientI: 0.50, sun: 0xffe0b8, sunI: 1.0, walkSpeed: 8, terrain: 0.9, radius: DEFAULT_R, segW: 256, segH: 128 },
-    jupiter: { name: '木星', color: 0xd0a070, atmo: 0xe8b878, ambient: 0xffd8a8, ambientI: 0.65, sun: 0xfff0d8, sunI: 0.65, walkSpeed: 10, terrain: 0.25, radius: DEFAULT_R, segW: 256, segH: 128 },
-    saturn:  { name: '土星', color: 0xd8bc82, atmo: 0xf0d8a0, ambient: 0xfff0d0, ambientI: 0.65, sun: 0xfff0d8, sunI: 0.50, walkSpeed: 10, terrain: 0.25, radius: DEFAULT_R, segW: 256, segH: 128 },
-    uranus:  { name: '天王星', color: 0x70c8d8, atmo: 0x80d8f0, ambient: 0xa0e8f8, ambientI: 0.55, sun: 0xe0f0ff, sunI: 0.15, walkSpeed: 8, terrain: 0.35, radius: DEFAULT_R, segW: 256, segH: 128 },
-    neptune: { name: '海王星', color: 0x2448c8, atmo: 0x4060d0, ambient: 0x5060d0, ambientI: 0.45, sun: 0x8090ff, sunI: 0.12, walkSpeed: 8, terrain: 0.45, radius: DEFAULT_R, segW: 256, segH: 128 },
+    mars:    { name: '火星', color: 0xb65a35, atmo: 0xd09070, ambient: 0xffd0a8, ambientI: 0.50, sun: 0xffe0b8, sunI: 1.0, walkSpeed: 13, terrain: 1.05, radius: 800, segW: 320, segH: 160 },
+    jupiter: { name: '木星', color: 0xd0a070, atmo: 0xe8b878, ambient: 0xffd8a8, ambientI: 0.70, sun: 0xfff0d8, sunI: 0.70, walkSpeed: 26, terrain: 0.18, radius: 1650, segW: 384, segH: 192, weather: 'jovian' },
+    saturn:  { name: '土星', color: 0xd8bc82, atmo: 0xf0d8a0, ambient: 0xfff0d0, ambientI: 0.70, sun: 0xfff0d8, sunI: 0.55, walkSpeed: 22, terrain: 0.14, radius: 1450, segW: 384, segH: 192, weather: 'saturn' },
+    uranus:  { name: '天王星', color: 0x70c8d8, atmo: 0x80d8f0, ambient: 0xa0e8f8, ambientI: 0.60, sun: 0xe0f0ff, sunI: 0.18, walkSpeed: 18, terrain: 0.12, radius: 1150, segW: 320, segH: 160, weather: 'iceGiant' },
+    neptune: { name: '海王星', color: 0x2448c8, atmo: 0x4060d0, ambient: 0x5060d0, ambientI: 0.50, sun: 0x8090ff, sunI: 0.15, walkSpeed: 20, terrain: 0.20, radius: 1150, segW: 320, segH: 160, weather: 'neptune' },
   };
+
+  const EXTRA_DESTINATIONS = {
+    moon: { name: '月球', color: 0xb8b4aa, atmo: 0x111111, ambient: 0xffffff, ambientI: 0.22, sun: 0xffffff, sunI: 2.0, walkSpeed: 9, terrain: 0.85, radius: 520, segW: 256, segH: 128, body: 'moon' },
+    phobos: { name: '火衛一 Phobos', color: 0x8a7766, atmo: 0x080808, ambient: 0xffffff, ambientI: 0.18, sun: 0xffddbb, sunI: 1.3, walkSpeed: 7, terrain: 1.4, radius: 360, segW: 192, segH: 96, body: 'phobos' },
+    io: { name: '木衛一 Io', color: 0xd8b34a, atmo: 0x1a1208, ambient: 0xffcc80, ambientI: 0.35, sun: 0xfff0d8, sunI: 1.2, walkSpeed: 10, terrain: 1.1, radius: 560, segW: 256, segH: 128, body: 'io' },
+    europa: { name: '木衛二 Europa', color: 0xded8c8, atmo: 0x90b8ff, ambient: 0xcfe6ff, ambientI: 0.45, sun: 0xfff0d8, sunI: 0.9, walkSpeed: 10, terrain: 0.45, radius: 540, segW: 256, segH: 128, body: 'europa' },
+    ganymede: { name: '木衛三 Ganymede', color: 0x9b8978, atmo: 0x202020, ambient: 0xffffff, ambientI: 0.28, sun: 0xfff0d8, sunI: 0.9, walkSpeed: 10, terrain: 0.75, radius: 640, segW: 256, segH: 128, body: 'ganymede' },
+    titan: { name: '土衛六 Titan', color: 0xc9873a, atmo: 0xff9b32, ambient: 0xffb060, ambientI: 0.75, sun: 0xffdda0, sunI: 0.28, walkSpeed: 9, terrain: 0.55, radius: 620, segW: 256, segH: 128, body: 'titan' },
+    enceladus: { name: '土衛二 Enceladus', color: 0xf0f4f8, atmo: 0xaed8ff, ambient: 0xdff6ff, ambientI: 0.55, sun: 0xfff4d8, sunI: 0.8, walkSpeed: 8, terrain: 0.55, radius: 420, segW: 224, segH: 112, body: 'enceladus' },
+    triton: { name: '海衛一 Triton', color: 0xb8a9a0, atmo: 0x8090ff, ambient: 0x8090ff, ambientI: 0.40, sun: 0xaabbff, sunI: 0.25, walkSpeed: 8, terrain: 0.70, radius: 520, segW: 224, segH: 112, body: 'triton' },
+    'saturn-rings': { name: '土星光環', color: 0xd8d0b8, atmo: 0x0a0804, ambient: 0xfff0d0, ambientI: 0.62, sun: 0xfff0d8, sunI: 0.55, walkSpeed: 45, terrain: 0, radius: 1450, segW: 256, segH: 16, surface: 'ring' },
+  };
+
+  const DESTINATIONS = { ...PLANETS, ...EXTRA_DESTINATIONS };
 
   // ——— 狀態 ———
   let scene, camera, renderer, container, canvasEl, animId;
@@ -31,11 +45,14 @@ window.PlanetWalkSphere = (function () {
   let planetRadius = cfg.radius;
   let playerDir = new THREE.Vector3(1, 0, 0);
   let headingDir = new THREE.Vector3(0, 1, 0);
+  let ringPos = new THREE.Vector3(1050, 0, 0);
+  let planarYaw = -Math.PI / 2;
   let pitchAngle = -0.08; // 稍微朝下，看到地平線曲線
   let isFlying = false, flyAlt = 60, flySpeed = 30;
   let keys = {}, isPointerDown = false, lastPtr = { x: 0, y: 0 };
   let onModeChangeCb = null, lastTime = 0;
   let earthAssets = null, initToken = 0;
+  let weatherGroup = null;
 
   function latLonFromDir(dir) {
     return {
@@ -246,7 +263,26 @@ window.PlanetWalkSphere = (function () {
       return h;
     }
 
+    if (cfg.surface === 'ring') return 0;
+    if (['jupiter', 'saturn', 'uranus', 'neptune'].includes(planetKey)) {
+      const belt = Math.sin(la * (planetKey === 'jupiter' ? 36 : 24) + lo * 0.8);
+      const swirl = Math.sin(la * 82 - lo * 9) * Math.cos(lo * 3);
+      return (belt * 4 + swirl * 2) * cfg.terrain;
+    }
+
     let h = 0;
+    if (cfg.body === 'io') {
+      return Math.sin(la * 9 + lo * 6) * 9 + Math.sin(la * 33 - lo * 21) * 3 + 8 * ridgeMask(la * 180 / Math.PI, lo * 180 / Math.PI, 95, -15, 18, 10, -15);
+    }
+    if (cfg.body === 'europa') {
+      return Math.sin(la * 18 + lo * 31) * 2.5 + Math.sin(lo * 80) * 0.8;
+    }
+    if (cfg.body === 'enceladus') {
+      return Math.sin(la * 24 - lo * 11) * 3 + 10 * ridgeMask(la * 180 / Math.PI, lo * 180 / Math.PI, 20, -72, 45, 8, 0);
+    }
+    if (cfg.body === 'titan') {
+      return Math.sin(la * 6 + lo * 7) * 7 + Math.sin(la * 25) * 2;
+    }
     h += Math.sin(la * 3  + lo * 5)  * 14;
     h += Math.sin(la * 7  - lo * 11) * 9;
     h += Math.sin(la * 13 + lo * 17) * 5;
@@ -319,11 +355,57 @@ window.PlanetWalkSphere = (function () {
 
   function colorN(nx, ny, nz, h) {
     if (planetKey === 'earth') return earthColor(earthInfoN(nx, ny, nz), h);
+    const lat = Math.asin(Math.max(-1, Math.min(1, ny)));
+    const lon = Math.atan2(nz, nx);
+    const latDeg = lat * 180 / Math.PI;
+    const lonDeg = lon * 180 / Math.PI;
+
+    if (planetKey === 'jupiter') {
+      const spot = ellipseMask(latDeg, lonDeg, -45, -22, 18, 9, 0);
+      if (spot > 0.08) return [0.78, 0.28 + spot * 0.18, 0.16];
+      const bands = Math.sin(lat * 34 + Math.sin(lon * 3) * 0.8);
+      const fine = Math.sin(lat * 91 + lon * 7) * 0.08;
+      return bands > 0
+        ? [0.86 + fine, 0.72 + fine, 0.52 + fine]
+        : [0.56 + fine, 0.36 + fine, 0.20 + fine];
+    }
+    if (planetKey === 'saturn') {
+      const bands = Math.sin(lat * 25 + Math.sin(lon * 2) * 0.4);
+      return bands > 0 ? [0.86, 0.75, 0.52] : [0.64, 0.50, 0.30];
+    }
+    if (planetKey === 'uranus') {
+      const band = Math.sin(lat * 18 + lon * 0.8) * 0.05;
+      return [0.36 + band, 0.78 + band, 0.84 + band];
+    }
+    if (planetKey === 'neptune') {
+      const darkSpot = ellipseMask(latDeg, lonDeg, 35, -25, 15, 8, -12);
+      if (darkSpot > 0.1) return [0.02, 0.05, 0.22 + darkSpot * 0.12];
+      const cloud = Math.max(0, Math.sin(lat * 28 - lon * 6));
+      return [0.05 + cloud * 0.12, 0.18 + cloud * 0.18, 0.58 + cloud * 0.25];
+    }
+    if (cfg.body === 'io') {
+      const lava = Math.max(ellipseMask(latDeg, lonDeg, 100, -15, 12, 8), ellipseMask(latDeg, lonDeg, -45, 25, 10, 6));
+      if (lava > 0.25) return [0.95, 0.25, 0.02];
+      return [0.82, 0.68 + Math.sin(lon * 15) * 0.08, 0.22];
+    }
+    if (cfg.body === 'europa') {
+      const crack = Math.abs(Math.sin(lon * 18 + lat * 7));
+      if (crack > 0.92) return [0.48, 0.28, 0.16];
+      return [0.78, 0.78, 0.70];
+    }
+    if (cfg.body === 'titan') return [0.78, 0.48 + Math.sin(lat * 8) * 0.06, 0.20];
+    if (cfg.body === 'enceladus') return [0.88, 0.94, 0.98];
+    if (cfg.body === 'triton') return latDeg < -35 ? [0.70, 0.45, 0.42] : [0.72, 0.67, 0.62];
+    if (cfg.body === 'ganymede') return [0.48 + Math.sin(lon * 11) * 0.08, 0.43, 0.36];
+    if (cfg.body === 'phobos') return [0.42, 0.35, 0.30];
+    if (cfg.body === 'moon') return h > 10 ? [0.70, 0.68, 0.63] : [0.52, 0.51, 0.48];
     return colorH(h);
   }
 
   // ——— 建立球面地形 Mesh ———
   function buildTerrain() {
+    if (cfg.surface === 'ring') return buildRingWalkSurface();
+
     const geo = new THREE.SphereGeometry(planetRadius, cfg.segW, cfg.segH);
     const pos = geo.attributes.position;
     const cols = [];
@@ -356,6 +438,35 @@ window.PlanetWalkSphere = (function () {
     return new THREE.Mesh(geo, mat);
   }
 
+  function buildRingWalkSurface() {
+    const geo = new THREE.RingGeometry(830, 1720, 384, 18);
+    geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position;
+    const cols = [];
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), z = pos.getZ(i);
+      const r = Math.sqrt(x * x + z * z);
+      const gap = r > 1250 && r < 1320;
+      const band = Math.sin(r * 0.045) * 0.10 + Math.sin(r * 0.013) * 0.08;
+      const base = gap ? 0.08 : 0.55 + band;
+      cols.push(base + 0.22, base + 0.18, base + 0.10);
+    }
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    return new THREE.Mesh(
+      geo,
+      new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })
+    );
+  }
+
+  function buildSaturnBodyForRingWalk() {
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(planetRadius * 0.56, 96, 48),
+      new THREE.MeshLambertMaterial({ color: 0xd6b77a })
+    );
+    body.position.set(0, -planetRadius * 0.18, 0);
+    scene.add(body);
+  }
+
   // ——— 大氣光暈（薄圈）———
   function buildAtmo() {
     const geo = new THREE.SphereGeometry(planetRadius + planetRadius * 0.12, 48, 48);
@@ -384,8 +495,90 @@ window.PlanetWalkSphere = (function () {
     return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 2.0 }));
   }
 
+  function buildSaturnRingsVisual() {
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(planetRadius * 1.18, planetRadius * 2.05, 384, 8),
+      new THREE.MeshBasicMaterial({
+        color: 0xd8ccb0,
+        transparent: true,
+        opacity: 0.62,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      })
+    );
+    ring.rotation.x = Math.PI / 2;
+    scene.add(ring);
+
+    const gap = new THREE.Mesh(
+      new THREE.RingGeometry(planetRadius * 1.55, planetRadius * 1.62, 384, 1),
+      new THREE.MeshBasicMaterial({ color: 0x000008, side: THREE.DoubleSide })
+    );
+    gap.rotation.x = Math.PI / 2;
+    scene.add(gap);
+  }
+
+  function buildWeather() {
+    if (!cfg.weather && !['io', 'enceladus'].includes(cfg.body)) return;
+    weatherGroup = new THREE.Group();
+
+    const count = cfg.weather === 'jovian' ? 260 : cfg.weather === 'neptune' ? 220 : 140;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const lat = (Math.random() - 0.5) * Math.PI * (cfg.weather === 'iceGiant' ? 0.6 : 0.9);
+      const lon = Math.random() * Math.PI * 2;
+      const r = planetRadius + 28 + Math.random() * 70;
+      positions[i * 3] = Math.cos(lat) * Math.cos(lon) * r;
+      positions[i * 3 + 1] = Math.sin(lat) * r;
+      positions[i * 3 + 2] = Math.cos(lat) * Math.sin(lon) * r;
+      const warm = cfg.weather === 'jovian' || cfg.weather === 'saturn';
+      colors[i * 3] = warm ? 1.0 : 0.45;
+      colors[i * 3 + 1] = warm ? 0.82 : 0.75;
+      colors[i * 3 + 2] = warm ? 0.48 : 1.0;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    const p = new THREE.Points(g, new THREE.PointsMaterial({
+      size: cfg.weather === 'jovian' ? 7 : 5,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.72,
+      depthWrite: false,
+    }));
+    weatherGroup.add(p);
+
+    if (cfg.weather === 'jovian' || cfg.weather === 'neptune') {
+      const flashGeo = new THREE.BufferGeometry();
+      const flashPositions = new Float32Array(90);
+      for (let i = 0; i < 30; i++) {
+        const lat = (Math.random() - 0.5) * 0.8;
+        const lon = Math.random() * Math.PI * 2;
+        const r = planetRadius + 38;
+        flashPositions[i * 3] = Math.cos(lat) * Math.cos(lon) * r;
+        flashPositions[i * 3 + 1] = Math.sin(lat) * r;
+        flashPositions[i * 3 + 2] = Math.cos(lat) * Math.sin(lon) * r;
+      }
+      flashGeo.setAttribute('position', new THREE.BufferAttribute(flashPositions, 3));
+      const flashes = new THREE.Points(flashGeo, new THREE.PointsMaterial({
+        color: cfg.weather === 'jovian' ? 0xfff0aa : 0xaecfff,
+        size: 18,
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+      }));
+      flashes.userData.flash = true;
+      weatherGroup.add(flashes);
+    }
+
+    scene.add(weatherGroup);
+  }
+
   // ——— 玩家 3D 位置 ———
   function getPlayerPos() {
+    if (cfg.surface === 'ring') {
+      return ringPos.clone().add(new THREE.Vector3(0, isFlying ? flyAlt : EYE, 0));
+    }
     const h = heightN(playerDir.x, playerDir.y, playerDir.z);
     const groundR = planetRadius + h;
     const r = isFlying ? planetRadius + flyAlt : groundR + EYE;
@@ -445,6 +638,15 @@ window.PlanetWalkSphere = (function () {
 
   // ——— 更新相機 ———
   function updateCamera() {
+    if (cfg.surface === 'ring') {
+      const pos = getPlayerPos();
+      const forward = new THREE.Vector3(Math.sin(planarYaw) * Math.cos(pitchAngle), Math.sin(pitchAngle), Math.cos(planarYaw) * Math.cos(pitchAngle)).normalize();
+      camera.position.copy(pos);
+      camera.up.set(0, 1, 0);
+      camera.lookAt(pos.clone().add(forward));
+      return;
+    }
+
     const pos   = getPlayerPos();
     const up    = getUp();
     const hFwd = headingDir.clone().normalize();
@@ -465,6 +667,26 @@ window.PlanetWalkSphere = (function () {
   // ——— 玩家移動 ———
   function movePlayer(dt) {
     const spd = isFlying ? flySpeed : cfg.walkSpeed;
+    if (cfg.surface === 'ring') {
+      const fwd = new THREE.Vector3(Math.sin(planarYaw), 0, Math.cos(planarYaw));
+      const rgt = new THREE.Vector3(Math.cos(planarYaw), 0, -Math.sin(planarYaw));
+      const move = new THREE.Vector3();
+      if (keys['w'] || keys['arrowup'])    move.add(fwd);
+      if (keys['s'] || keys['arrowdown'])  move.sub(fwd);
+      if (keys['a'] || keys['arrowleft'])  move.sub(rgt);
+      if (keys['d'] || keys['arrowright']) move.add(rgt);
+      if (move.lengthSq() > 0) {
+        ringPos.add(move.normalize().multiplyScalar(spd * dt));
+        const r = Math.sqrt(ringPos.x * ringPos.x + ringPos.z * ringPos.z);
+        if (r < 840 || r > 1710) ringPos.multiplyScalar(Math.max(840, Math.min(1710, r)) / r);
+      }
+      if (isFlying) {
+        if (keys[' '])     flyAlt += flySpeed * dt * 0.5;
+        if (keys['shift']) flyAlt = Math.max(5, flyAlt - flySpeed * dt * 0.5);
+      }
+      return;
+    }
+
     const right = new THREE.Vector3().crossVectors(headingDir, playerDir).normalize();
     const move = new THREE.Vector3();
 
@@ -491,6 +713,11 @@ window.PlanetWalkSphere = (function () {
     const dx = e.clientX - lastPtr.x;
     const dy = e.clientY - lastPtr.y;
     lastPtr = { x: e.clientX, y: e.clientY };
+    if (cfg.surface === 'ring') {
+      planarYaw += dx * SENS_H;
+      pitchAngle = Math.max(-Math.PI / 4.5, Math.min(Math.PI / 6, pitchAngle - dy * SENS_V));
+      return;
+    }
     headingDir.applyAxisAngle(playerDir, -dx * SENS_H);
     normalizeHeading();
     // 最多往下看 40°，避免看進自己腳下造成渦旋效果
@@ -545,9 +772,31 @@ window.PlanetWalkSphere = (function () {
     lastTime = now;
     movePlayer(dt);
     updateCamera();
+    if (weatherGroup) {
+      weatherGroup.rotation.y += dt * (cfg.weather === 'jovian' ? 0.035 : cfg.weather === 'neptune' ? 0.055 : 0.018);
+      weatherGroup.children.forEach((child) => {
+        if (child.userData.flash) child.material.opacity = Math.random() > 0.92 ? 0.85 : 0.05;
+      });
+    }
     renderer.render(scene, camera);
     // 更新 HUD
     if (window.updateWalkHUD) {
+      if (cfg.surface === 'ring') {
+        const radius = Math.sqrt(ringPos.x * ringPos.x + ringPos.z * ringPos.z);
+        window.updateWalkHUD({
+          x: ringPos.x, z: ringPos.z,
+          elevation: 0,
+          altitude: isFlying ? flyAlt : 0,
+          yaw: (planarYaw + Math.PI * 2) % (Math.PI * 2),
+          planetKey,
+          flyMode: isFlying,
+          flySpeed,
+          sphereMode: false,
+          lat: radius,
+          lon: Math.atan2(ringPos.z, ringPos.x) * 180 / Math.PI,
+        });
+        return;
+      }
       const ll = latLonFromDir(playerDir);
       window.updateWalkHUD({
         x: ll.lon * 100, z: -ll.lat * 100,
@@ -568,11 +817,13 @@ window.PlanetWalkSphere = (function () {
   function init(containerEl, key) {
     const token = ++initToken;
     container = containerEl;
-    planetKey = PLANETS[key] ? key : 'earth';
-    cfg = PLANETS[planetKey];
+    planetKey = DESTINATIONS[key] ? key : 'earth';
+    cfg = DESTINATIONS[planetKey];
     planetRadius = cfg.radius || DEFAULT_R;
     playerDir.set(1, 0, 0);
     headingDir.set(0, 1, 0);
+    ringPos.set(1050, 0, 0);
+    planarYaw = -Math.PI / 2;
     pitchAngle = 0.02; // 略微朝上，讓地平線在視野中央
     isFlying = false; flyAlt = 60; flySpeed = 30;
     keys = {}; isPointerDown = false;
@@ -597,9 +848,12 @@ window.PlanetWalkSphere = (function () {
 
     const finishInit = () => {
       if (token !== initToken || !scene) return;
+      if (cfg.surface === 'ring') buildSaturnBodyForRingWalk();
       scene.add(buildTerrain());
+      if (planetKey === 'saturn') buildSaturnRingsVisual();
       scene.add(buildAtmo());
       scene.add(buildStars());
+      buildWeather();
 
       bindEvents();
       lastTime = performance.now();
@@ -621,7 +875,7 @@ window.PlanetWalkSphere = (function () {
       renderer.dispose();
       if (canvasEl && canvasEl.parentNode) canvasEl.parentNode.removeChild(canvasEl);
     }
-    scene = camera = renderer = container = canvasEl = null;
+    scene = camera = renderer = container = canvasEl = weatherGroup = null;
     animId = null; keys = {};
   }
 
@@ -637,5 +891,7 @@ window.PlanetWalkSphere = (function () {
     isFlying:    ()   => isFlying,
     getFlySpeed: ()   => flySpeed,
     onModeChange:(cb) => { onModeChangeCb = cb; },
+    getName:     (key) => DESTINATIONS[key]?.name || key,
+    isAvailable: (key) => !!DESTINATIONS[key],
   };
 })();
