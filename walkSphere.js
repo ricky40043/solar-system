@@ -267,7 +267,13 @@ window.PlanetWalkSphere = (function () {
     if (['jupiter', 'saturn', 'uranus', 'neptune'].includes(planetKey)) {
       const belt = Math.sin(la * (planetKey === 'jupiter' ? 36 : 24) + lo * 0.8);
       const swirl = Math.sin(la * 82 - lo * 9) * Math.cos(lo * 3);
-      return (belt * 4 + swirl * 2) * cfg.terrain;
+      let h = (belt * 4 + swirl * 2) * cfg.terrain;
+      if (planetKey === 'jupiter') {
+        const latD = la * 180 / Math.PI;
+        const lonD = lo * 180 / Math.PI;
+        h += ellipseMask(latD, lonD, -45, -22, 24, 12, 0) * 8 * cfg.terrain;
+      }
+      return h;
     }
 
     let h = 0;
@@ -361,8 +367,12 @@ window.PlanetWalkSphere = (function () {
     const lonDeg = lon * 180 / Math.PI;
 
     if (planetKey === 'jupiter') {
-      const spot = ellipseMask(latDeg, lonDeg, -45, -22, 18, 9, 0);
-      if (spot > 0.08) return [0.78, 0.28 + spot * 0.18, 0.16];
+      const spot = ellipseMask(latDeg, lonDeg, -45, -22, 24, 12, 0);
+      if (spot > 0.05) {
+        const inner = ellipseMask(latDeg, lonDeg, -45, -22, 10, 5, 0);
+        if (inner > 0.55) return [1.0, 0.60, 0.28]; // 亮橘色核心眼
+        return [0.90, 0.22 + spot * 0.24, 0.11];
+      }
       const bands = Math.sin(lat * 34 + Math.sin(lon * 3) * 0.8);
       const fine = Math.sin(lat * 91 + lon * 7) * 0.08;
       return bands > 0
@@ -465,6 +475,42 @@ window.PlanetWalkSphere = (function () {
     );
     body.position.set(0, -planetRadius * 0.18, 0);
     scene.add(body);
+  }
+
+  // 木星大紅斑 3D 風暴結構：同心環浮在地表上空
+  function buildGRS() {
+    const grLat = -22 * Math.PI / 180;
+    const grLon = -45 * Math.PI / 180;
+    const up = new THREE.Vector3(
+      Math.cos(grLat) * Math.cos(grLon),
+      Math.sin(grLat),
+      Math.cos(grLat) * Math.sin(grLon)
+    ).normalize();
+    const orient = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), up);
+
+    // 紅色點光源照亮風暴地面
+    const glow = new THREE.PointLight(0xff3010, 1.5, 750);
+    glow.position.copy(up.clone().multiplyScalar(planetRadius + 55));
+    scene.add(glow);
+
+    // 由內到外的同心風暴盤（altitude 逐漸升高、半徑逐漸增大）
+    const layers = [
+      { alt: 16, inner: 0,   outer: 70,  color: 0xff6030, opacity: 0.55 },
+      { alt: 28, inner: 68,  outer: 145, color: 0xdd3812, opacity: 0.50 },
+      { alt: 46, inner: 142, outer: 220, color: 0xcc3010, opacity: 0.40 },
+      { alt: 66, inner: 218, outer: 310, color: 0xbb2c0e, opacity: 0.27 },
+    ];
+    layers.forEach(({ alt, inner, outer, color, opacity }) => {
+      const geo = inner === 0
+        ? new THREE.CircleGeometry(outer, 64)
+        : new THREE.RingGeometry(inner, outer, 64);
+      const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({
+        color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide,
+      }));
+      mesh.position.copy(up.clone().multiplyScalar(planetRadius + alt));
+      mesh.quaternion.copy(orient);
+      scene.add(mesh);
+    });
   }
 
   // ——— 大氣光暈（薄圈）———
@@ -828,6 +874,19 @@ window.PlanetWalkSphere = (function () {
     isFlying = false; flyAlt = 60; flySpeed = 30;
     keys = {}; isPointerDown = false;
 
+    // 木星：出生在大紅斑中心，略微抬頭看風暴環
+    if (planetKey === 'jupiter') {
+      const grLat = -22 * Math.PI / 180;
+      const grLon = -45 * Math.PI / 180;
+      playerDir.set(
+        Math.cos(grLat) * Math.cos(grLon),
+        Math.sin(grLat),
+        Math.cos(grLat) * Math.sin(grLon)
+      ).normalize();
+      pitchAngle = 0.28;
+      normalizeHeading();
+    }
+
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -851,6 +910,7 @@ window.PlanetWalkSphere = (function () {
       if (cfg.surface === 'ring') buildSaturnBodyForRingWalk();
       scene.add(buildTerrain());
       if (planetKey === 'saturn') buildSaturnRingsVisual();
+      if (planetKey === 'jupiter') buildGRS();
       scene.add(buildAtmo());
       scene.add(buildStars());
       buildWeather();

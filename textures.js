@@ -139,13 +139,32 @@ window.makeTexture = function(type, baseColor) {
     if (isJup) {
       const grx = canvas.width * 0.3;
       const gry = canvas.height * 0.62;
-      const grad = ctx.createRadialGradient(grx, gry, 0, grx, gry, 50);
-      grad.addColorStop(0, 'rgba(180,60,40,0.95)');
-      grad.addColorStop(0.6, 'rgba(160,80,50,0.7)');
-      grad.addColorStop(1, 'rgba(160,80,50,0)');
+      // 外暈環
+      const outer = ctx.createRadialGradient(grx, gry, 58, grx, gry, 110);
+      outer.addColorStop(0, 'rgba(200,72,38,0.38)');
+      outer.addColorStop(1, 'rgba(180,58,28,0)');
+      ctx.fillStyle = outer;
+      ctx.beginPath();
+      ctx.ellipse(grx, gry, 122, 74, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // 主體渦旋
+      const grad = ctx.createRadialGradient(grx, gry, 0, grx, gry, 82);
+      grad.addColorStop(0,    'rgba(238,96,42,1)');
+      grad.addColorStop(0.28, 'rgba(218,78,36,0.97)');
+      grad.addColorStop(0.60, 'rgba(192,62,30,0.76)');
+      grad.addColorStop(0.84, 'rgba(170,57,27,0.28)');
+      grad.addColorStop(1,    'rgba(152,50,24,0)');
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.ellipse(grx, gry, 60, 35, 0, 0, Math.PI * 2);
+      ctx.ellipse(grx, gry, 94, 56, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // 亮橘色核心眼
+      const eye = ctx.createRadialGradient(grx, gry, 0, grx, gry, 35);
+      eye.addColorStop(0, 'rgba(255,172,78,0.76)');
+      eye.addColorStop(1, 'rgba(232,100,46,0)');
+      ctx.fillStyle = eye;
+      ctx.beginPath();
+      ctx.ellipse(grx, gry, 40, 23, 0, 0, Math.PI * 2);
       ctx.fill();
     }
   } else if (type === 'uranus' || type === 'neptune') {
