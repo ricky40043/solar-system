@@ -11,11 +11,23 @@
 <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
 
 <!-- React + Babel -->
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
+<script>
+window.addEventListener('error', function(event) {
+  var box = document.getElementById('runtime-error');
+  if (!box) {
+    box = document.createElement('pre');
+    box.id = 'runtime-error';
+    box.style.cssText = 'position:fixed;inset:20px;z-index:9999;white-space:pre-wrap;background:#240b0b;color:#ffe3e3;border:1px solid #ff7777;padding:16px;font:14px/1.5 monospace;';
+    document.body.appendChild(box);
+  }
+  box.textContent += (event.message || 'runtime error') + '\n' + (event.filename || '') + ':' + (event.lineno || '') + ':' + (event.colno || '') + '\n';
+});
+</script>
 <div id="root"></div>
 
 <script src="data.js"></script>
